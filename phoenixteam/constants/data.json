@@ -1,0 +1,36 @@
+{
+ 
+    "shopOwners": [
+        {
+            "id":0,
+            "shopName":"phoenix05.myharavan.com",
+            "accessToken":"JJRpmFQG9ufdlIrn5kteOOF4xpJCklf0lnryikbznvbgt-MK6WDZWmr_avXNSSRh0kXbEsGdlHhgu8wj_10uyHH6oP_Qtz9BwTxLDLzW_rltCVvtz7t273nWCWEDVaq3Jd3SQyf5LgdW4m5mpEchgbY1m5rkqufCduiOVb8m-q8xGflZ6LrUKogXxA6QtCJnEedP0k-jiY3Kg3hQQOZFV_UZ3ci6mENeUSQkQgD7qKtpcRkI4JBk2SY3mXP0_MPEATOTQ4fLurLljP9qPXVgkGReV6m2TIIwFfHpQ_s5R0Y08pm2f98uzq8B32EJ1tL2Sl-9OPqFZamzZMKOo5yw-oKNbo7gZ13wqkq72spajGnJRHLsh26jLLkE1xNPlFm4Mi765HH8IP4uoZQ8yTh2nDVnsuiWMWe6Ae26MjTZQuAsNblrUCma5L2eHCu7l00m6zjajqfLtc75S86nivsqF-AyXOoH0ZU_X42REh8tHozaZyju143FNSz6JcK4dhNj7Ah9tA",
+            "settingRules": [
+                {
+                    "id": 1,
+                    "date": 5,
+                    "discount": 0.5,
+                    "duration": 5
+                  },
+                  {
+                    "id": 2,
+                    "date": 7,
+                    "discount": 0.4,
+                    "duration": 5
+                  },
+                  {
+                    "id": 3,
+                    "date": 10,
+                    "discount": 0.3,
+                    "duration": 5
+                  },
+                  {
+                    "id": 4,
+                    "date": 30,
+                    "discount": 0.2,
+                    "duration": 5
+                  }
+            ]      
+        }
+    ]
+}
