@@ -11,7 +11,9 @@ import {
   ActivityIndicator,
   Button
 } from 'react-native';
+
 import ProductItem from '../components/ProductItem';
+import ProductVariants from '../components/ProductVariants';
 
 import { Api } from '../constants/const';
 export default class ItemDetailScreen extends Component {
@@ -23,20 +25,18 @@ export default class ItemDetailScreen extends Component {
   }
   callApi = async () => {
     const API_URL = `${Api}Product/${this.props.navigation.state.params.data.productId}`;
-
     const response = await fetch(API_URL);
     const product = await response.json();
-
     return product.data;
   };
+ 
    UNSAFE_componentWillMount = async () => {
     let data = await this.callApi();
-    console.log(data, 'image');
     this.setState({
       data,
       isLoading: false,
     });
-  }
+  } 
   onRefresh = () => {
     this.setState({
       
@@ -55,7 +55,7 @@ export default class ItemDetailScreen extends Component {
   //   this.props.navigation.navigate('VariantDetail', { data: { variantsItem, images } });
   // };
   render() {
-    if (this.state.isLoading || !this.state.data) {
+    if (this.state.isLoading || !this.state.data ) {
       return (
         <View style={styles.containerLoading}>
           <ActivityIndicator
@@ -69,14 +69,12 @@ export default class ItemDetailScreen extends Component {
         </View>
       );
     }
-    console.log(this.state.data, 'jhjhjjj');
     return (
       <ScrollView>
         <FlatList
           data={this.state.data.images}
           horizontal={true}
           renderItem={({ item }) => {
-            console.log(item);
             return <Image style={styles.img} source={{ uri: item }} />;
           }}
           keyExtractor={(item, index) => index.toString()}
@@ -99,17 +97,28 @@ export default class ItemDetailScreen extends Component {
             </Text>
           </View>
           <View style={styles.productContentsWrapper}>
-            <Text style={styles.productContentTitle}>Gía:</Text>
+            <Text style={styles.productContentTitle}>Gía: </Text>
             <Text style={styles.productContentText}>
-              {this.state.data.price}{' '}
+              {this.state.data.price}{' '}VNĐ
             </Text>
           </View>
+          <View style={styles.buttonChange}>
            <Button
-        title="Discount"
-        onPress={() => this.props.navigation.navigate('ItemDetailScreen')}
+        title="Thêm giảm giá"
+        
+        onPress={() => this.props.navigation.navigate('VariantDetail', {data: this.state.data})}
+        buttonStyle={styles.buttonChange}
       />
+      </View>
           
         </View>
+        
+        <FlatList
+          data={this.state.data.saleOffs}
+          renderItem={({ item }) => {
+            return <ProductVariants saleOffs={item} onClick={() => this.onViewDetail(item.id)} />
+          }}
+          keyExtractor={(item, index) => index.toString()} />
       </ScrollView>
     );
   }
@@ -158,10 +167,30 @@ const styles = StyleSheet.create({
 
   content: {
     flexDirection: 'column',
+    flex: 0.8,
+   
+    justifyContent: 'space-around',
+    height: 100,
+    borderColor: '#d7d7d7',
+    borderBottomWidth: 1,
+    alignItems: 'center',
+    flex: 1,
+    
   },
   productText: {
     color: 'black',
     fontSize: 28,
     fontWeight: '400',
   },
+  buttonChange:{
+    borderTopWidth: 0.5,
+    borderColor: '#d7d7d7',
+    flexDirection: 'row',
+    backgroundColor: '#2EFEF7',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: 100,
+    height:60,
+    paddingHorizontal: 10,
+  }
 });

@@ -37,7 +37,6 @@ export default class HistoryScreen extends Component {
           _history = snapshot.val()[0].history;
         }
 
-        console.log('History gâu gâu', _history);
       })
     this.setState({
       history: _history,
@@ -61,7 +60,6 @@ export default class HistoryScreen extends Component {
   }
   render() {
     const { history, isLoading } = this.state;
-    console.log('History gâu gâu', history);
     return (
       <View style={styles.container}>
         <FlatList

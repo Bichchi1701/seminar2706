@@ -11,38 +11,51 @@ export default class ProductVariants extends Component {
     }
 
     render() {
-        const { data: {
-            grams, sku, price, image_id, last_sell, discount
+        const { saleOffs: {
+            originalPrice,percentDiscount,status, dateStart, dateEnd, 
         },
-            img,
+           
             onClick,
         } = this.props;
-        const variantImg = img.find(item => item.id === image_id);
-        var _scr = img[0].src;
-        if(variantImg!==undefined)
-        {
-            _scr = variantImg.src;
-        }
-        const imgStyle = discount === 0 ? styles.productImgWrapper : styles.productImgActiveWrapper;
-        console.log('Hinh ne ', variantImg);
+        
+        // var _scr = img[0].src;
+        // if(variantImg!==undefined)
+        // {
+        //     _scr = variantImg.src;
+        // }
+        // const imgStyle = discount === 0 ? styles.productImgWrapper : styles.productImgActiveWrapper;
         return (
             <TouchableOpacity style={styles.product} onPress={onClick} >
-                <Image style={imgStyle}
+                {/* <Image style={imgStyle}
                     source={{ uri: _scr }}
-                />
-
+                /> */}
+                <View style={styles.title}> 
+                    <Text style={styles.title}>Lịch sử</Text>
+                    </View>
                 <View style={ styles.productContentsWrapper}>
+                    {/* <View style={styles.title}> 
+                    <Text style={styles.title}>Lịch sử thay đổi giá </Text>
+                    </View> */}
                     <View style={styles.productContentWrapper}>
-                        <Text style={styles.productContentTitle}>SKU:</Text>
-                        <Text style={styles.productText}> {sku} </Text>
+                        <Text style={styles.productContentTitle}>Giá gốc:</Text>
+                        <Text style={styles.productText}> {originalPrice} VNĐ</Text>
                     </View>
                     <View style={styles.productContentWrapper}>
-                        <Text style={styles.productContentTitle}>Giá:</Text>
-                        <Text style={styles.productText}> {price} VNĐ </Text>
+                        <Text style={styles.productContentTitle}>Mức chiết khấu:</Text>
+                        <Text style={styles.productText}> {percentDiscount}  </Text>
+                    </View>
+                   
+                    <View style={styles.productContentWrapper}>
+                        <Text style={styles.productContentTitle}>Trạng thái: </Text>
+                        <Text style={styles.productText}> {status} </Text>
                     </View>
                     <View style={styles.productContentWrapper}>
-                        <Text style={styles.productContentTitle}>Đã {last_sell} ngày không bán được!</Text>
-                        <Text style={styles.productText}> </Text>
+                        <Text style={styles.productContentTitle}>Ngày bắt đầu: </Text>
+                        <Text style={styles.productText}>{dateStart}</Text>
+                    </View>
+                    <View style={styles.productContentWrapper}>
+                        <Text style={styles.productContentTitle}>Ngày kết thúc:</Text>
+                        <Text style={styles.productText}>{dateEnd} </Text>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -95,5 +108,12 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 18,
     },
+    title: {
+        color: '#FFBF00',
+        fontSize: 14,
+        fontWeight: 'bold',
+       
+
+    }
 });
 

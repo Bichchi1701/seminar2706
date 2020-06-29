@@ -34,7 +34,8 @@ export default class SettingItem extends Component {
                     <Input containerStyle={styles.inputQty} keyboardType='numeric' value={_discount} onChangeText={this.props.onChangeDiscount} />
                 </View>
                 <View style={styles.settingRulesDateTitleWrapper}>
-                    <Input containerStyle={styles.inputQty} keyboardType='numeric' value={_duration} onChangeText={this.props.onChangeDuration} />
+                    <Text style={styles.input} >7</Text>
+                    {/* <Input containerStyle={styles.inputQty} keyboardType='numeric' value={_duration} onChangeText={null} /> */}
                 </View>
                 <View style={styles.settingRulesButtonWrapper}>
 
@@ -58,11 +59,11 @@ export default class SettingItem extends Component {
 }
 const styles = StyleSheet.create({
     button: {
-        borderRadius:15,
-        height:30,
-        width:30,
+        borderRadius: 15,
+        height: 30,
+        width: 30,
         // backgroundColor:'#cc3300'
-        
+
     },
     setting: {
         flexDirection: 'row',
@@ -112,5 +113,11 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: '400'
     },
+    input: {
+        fontSize: 17,
+        marginTop: 10,
+
+    },
+
 });
 

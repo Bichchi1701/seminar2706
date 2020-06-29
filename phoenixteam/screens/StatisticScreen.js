@@ -126,7 +126,6 @@ export default class StatisticScreen extends Component {
     }
     const buttonHeader = ['Tất cả', 'Hàng tồn báo động'];
     const { selectedIndex } = this.state;
-    console.log("render")
     return (
       <View style={styles.container}>
         <SearchBar

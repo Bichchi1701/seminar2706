@@ -12,6 +12,7 @@ import {
   Alert,
   Script
 } from 'react-native';
+// import DatePicker from 'react-native-datepicker'
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { SearchBar, ButtonGroup, Input, Button, } from 'react-native-elements';
@@ -22,45 +23,31 @@ export default class VariantDetailScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      
-      discountItem: {
-        id: '',
-        updated_at: '',
-        org_price: '',
+      flag: true,
+      variantItem: {
+        productId: '',
+        aft_price: '',
         price: '',
-        inventory_quantity: '',
-        image_id: '',
-        last_sell: '',
-        discount: '',
-        duration: '',
-        sold: '',
-        id: '',
+        percent: '',
+        dateStart: '',
+        dateEnd: '',
       },
       images: [],
     };
   }
-  componentWillMount = () => {
-    const { navigation } = this.props;
-    const VariantItem = navigation.getParam('data');
+  UNSAFE_componentWillMount = () => {
+    const { data } = this.props.navigation.state.params;
     this.setState({
       variantItem: {
-        sku: VariantItem.variantsItem.sku,
-        updated_at: VariantItem.variantsItem.updated_at,
-        price: VariantItem.variantsItem.price,
-        inventory_quantity: VariantItem.variantsItem.inventory_quantity,
-        image_id: VariantItem.variantsItem.image_id,
-        last_sell: VariantItem.variantsItem.last_sell,
-        discount: VariantItem.variantsItem.discount,
-        duration: VariantItem.variantsItem.duration,
-        sold: VariantItem.variantsItem.sold,
-        id: VariantItem.variantsItem.id,
-        org_price: VariantItem.variantsItem.org_price,
-
+        productId: data.productId,
+        percent: data.percent,
+        price: data.price,
+        dateStart: data.date,
+        dateEnd: data.dateEnd,
+        aft_price: data.aft_price,
       },
-      images: VariantItem.images,
+      images: data.images,
     })
-    console.log('willMount', VariantItem);
-
   }
   onSaveVariant = async (value) => {
     const { variantItem } = this.state;
@@ -85,36 +72,10 @@ export default class VariantDetailScreen extends Component {
       .catch((error) => {
         console.error(error);
       });
-
-    var _product = [];
-    var _history = [];
-    await firebase
-      .database()
-      .ref('/shopOwners/')
-      .once('value', function (snapshot) {
-        _product = snapshot.val()[0].products;
-        _history = snapshot.val()[0].history;
-      })
-    for (var item of _product) {
-      for (var _item of item.variants) {
-        if (_item.id === data.id) {
-          _item.duration = parseInt(this.state.variantItem.duration);
-          _item.discount = parseInt(this.state.variantItem.discount);
-        }
-      }
-    }
-    await firebase.database().ref('shopOwners/0').update(
-      { products: _product }
-    ).then((data) => {
-      //success callback
-      console.log('data ', data)
-    }).catch((error) => {
-      //error callback
-      console.log('error ', error)
-    });
+   
     var _now = moment().format("DD/MM/YYYY HH:mm:ss");
     const newHistoryItem = {
-      content: 'Bạn đã cập nhật sản phẩm ' + variantItem.id,
+      content: 'Bạn đã cập nhật sản phẩm ' + discountItem.id,
       time: _now,
       id: _history.length + 1,
       type: 'product',
@@ -133,38 +94,14 @@ export default class VariantDetailScreen extends Component {
         type,
       }).then((data) => {
         //success callback
-        console.log('data ', data)
       }).catch((error) => {
         //error callback
-        console.log('error ', error)
       });
       i++
     };
     Alert.alert('Đã lưu', 'Cập nhật thành công');
   };
-  pushHistoryToFirebase = (history) => {
-    
-    var i = 0;
-    for (let item of history) {
-      let content = item.content;
-      let time = item.time;
-      let id = item.id;
-      let type = item.type;
-      firebase.database().ref('shopOwners/0/history').child(i).set({
-        content,
-        time,
-        id,
-        type,
-      }).then((data) => {
-        //success callback
-        console.log('data ', data)
-      }).catch((error) => {
-        //error callback
-        console.log('error ', error)
-      });
-      i++
-    }
-  }
+
   onCancel = () => {
 
   };
@@ -173,100 +110,97 @@ export default class VariantDetailScreen extends Component {
     if (parseInt(value) <= 100 || value === '') {
       const { variantItem } = this.state;
       var newVariantItem = variantItem;
-      newVariantItem.discount = value;
+      newVariantItem.percent = value;
       this.setState({
         variantItem: newVariantItem,
       })
     }
   }
+  onSetDatestart = (value) => {
+   
+  }
+  onSetDateend = (value) => {
+   
 
-  onSetDuration = (value) => {
+  }
+  getValueDate = (date, type) => {
+    let tmp = date.split("/");
+    const TYPE = {
 
-    const { variantItem } = this.state;
-    var newVariantItem = variantItem;
-    newVariantItem.duration = value;
-    this.setState({
-      variantItem: newVariantItem,
-    })
+    }
   }
   render() {
-
-    // // const { navigation } = this.props;
-    // // const VariantItem = navigation.getParam('data');
-    // const {
-    //   variantItem: {
-    //     sku, updated_at, price, inventory_quantity, image_id, last_sell, discount, duration
-    //   },
-    //   images,
-    // } = this.state;
-    console.log('afterWillMount', this.state);
-    const { flag } = this.state;
-    const variantImg = this.state.images.find(item => item.id === this.state.variantItem.image_id);
-    var _scr = this.state.images[0].src;
-    var _inventory_quantity = 0;
-    var _discount = 0;
-    if (this.state.variantItem.discount != undefined) {
-      _discount = this.state.variantItem.discount.toString();
+    var _percent=0;
+    if (this.state.variantItem.percent != undefined) {
+      _percent = this.state.variantItem.percent.toString();
     }
-
-    var _afterPrice = parseInt(this.state.variantItem.org_price) - parseInt(this.state.variantItem.org_price) * parseInt(_discount) / 100;
-    var _duration = this.state.variantItem.duration.toString();
-
-    if (variantImg !== undefined) {
-      _scr = variantImg.src;
-    }
-    if (this.state.variantItem.inventory_quantity !== null) {
-      _inventory_quantity = this.state.variantItem.inventory_quantity;
-    }
-    console.log('DISCOUNT', _discount);
-    // if (flag) {
-
-
-    // }
-    var _updated_at = moment(this.state.variantItem.updated_at).format("DD/MM/YYYY HH:mm:ss");
-    // console.log('Bien the ne he', VariantItem);
-    // console.log('source hinh ne he', _scr);
+    var _aftPrice=0;
+    var  _aftprice = parseInt(this.state.variantItem.price) - parseInt(this.state.variantItem.price) * parseInt(_percent) / 100;
     return (
       <ScrollView>
         <View style={styles.content}>
-          <Image style={styles.productImgWrapper}
-            source={{ uri: _scr }} />
-          <View style={styles.productContentsWrapper}>
-            <Text style={styles.productWarningTitle}>Sản phẩm này đã {this.state.variantItem.last_sell} ngày không bán được! </Text>
+        <View style={styles.settingButton}>
+            <Text style={styles.settingText}>Cập nhật trạng thái </Text>
+            <Switch
+              size={50}
+              onValueChange={this.onChangeAutomatic}
+              value={this.state.isAutomatic}
+
+            />
+
           </View>
+
           <View style={styles.productContentsWrapper}>
             <Text style={styles.productContentTitle}>SKU: </Text>
-            <Text style={styles.productContentText}> {this.state.variantItem.sku} </Text>
+            <Text style={styles.productContentText}> {this.state.variantItem.productId} </Text>
           </View>
-          <View style={styles.productContentsWrapper}>
-            <Text style={styles.productContentTitle}>Số lượng còn lại:</Text>
-            <Text style={styles.productContentText}> {this.state.variantItem._inventory_quantity} </Text>
-          </View>
-          <View style={styles.productContentsWrapper}>
-            <Text style={styles.productContentTitle}>Số lượng bán được: </Text>
-            <Text style={styles.productContentText}> {0} </Text>
-          </View>
+
           <View style={styles.productContentsWrapper}>
             <Text style={styles.productContentTitle}>Giá gốc:</Text>
-            <Text style={styles.productContentText}> {this.state.variantItem.org_price} VNĐ </Text>
+            <Text style={styles.productContentText}> {this.state.variantItem.price} VNĐ </Text>
           </View>
           <View style={styles.productContentsWrapper}>
             <Text style={styles.productContentTitle}>Mức chiết khấu: </Text>
-            <TextInput maxLength={3} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={_discount} onChangeText={(value) => this.onSetDiscount(value)} />
+            <TextInput maxLength={3} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.percent} onChangeText={(value) => this.onSetDiscount(value)} />
             <Text style={styles.productContentTitle}> %</Text>
           </View>
-          <View style={styles.productContentsWrapper}>
+          {/* <View style={styles.productContentsWrapper}>
             <Text style={styles.productContentTitle}>Giá sau chiết khấu: </Text>
             <Text style={styles.productContentTitle}>{_afterPrice} VNĐ</Text>
+          </View> */}
+           <View style={styles.productContentsWrapper}>
+            <Text style={styles.productContentTitle}>Giá sản phẩm sau khi chiết khấu:</Text>
+            <Text style={styles.productContentText}> { _aftprice} VNĐ </Text>
           </View>
           <View style={styles.productContentsWrapper}>
-            <Text style={styles.productContentTitle}>Số ngày áp dụng: </Text>
-            <TextInput maxLength={4} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={_duration} onChangeText={(value) => this.onSetDuration(value)} />
-            <Text style={styles.productContentTitle}> ngày</Text>
+            <Text style={styles.productContentTitle}>Ngày bắt đầu: </Text>
+            <TextInput maxLength={2} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "d")} />
+            <Text> ngày</Text>
+            <TextInput maxLength={2} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "m")} />
+            <Text> tháng</Text>
+            <TextInput maxLength={4} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "y")} />
+            <Text>     năm</Text>
+            {/* <DatePicker
+              style={{ width: 200 }}
+              date={this.state.date}
+              mode="date"
+              placeholder="select date"
+              format="DD-MM-YYYY"
+              // minDate="2016-05-01"
+              // maxDate="2016-06-01"
+              confirmBtnText="Confirm"
+              cancelBtnText="Cancel"
+              customStyles={styles.datePickerCustom}
+              onDateChange={(date) => { this.setState({ date: date }) }} /> */}
           </View>
           <View style={styles.productContentsWrapper}>
-            <Text style={styles.productContentTitle}>Ngày cập nhật:</Text>
-            <Text style={styles.productContentText}> {_updated_at} </Text>
+            <Text style={styles.productContentTitle}>Ngay kết thúc: </Text>
+            <TextInput maxLength={2} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "d")} />
+            <Text>ngày</Text>
+            <TextInput maxLength={2} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "m")} />
+            <Text>tháng</Text>
+            <TextInput maxLength={4} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "y")} />
+            <Text>năm</Text>
           </View>
 
           <View style={styles.settingConfirmButtonWrapper}>
@@ -281,7 +215,7 @@ export default class VariantDetailScreen extends Component {
                   />
                 }
                 title=" Lưu"
-                onPress={() => this.onSaveVariant(_afterPrice)}
+                onPress={() => this.onSaveVariant(_aftPrice)}
                 buttonStyle={styles.buttonSave}
               />
             </View>
@@ -306,7 +240,7 @@ export default class VariantDetailScreen extends Component {
   }
 }
 VariantDetailScreen.navigationOptions = {
-  title: 'Chi tiết biến thể',
+  title: 'Thay đổi giá',
 };
 
 const styles = StyleSheet.create({
@@ -355,6 +289,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flexDirection: 'column',
+    
   },
   productContentTitle: {
     color: 'black',
@@ -372,6 +307,16 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 14,
   },
-
+  settingButton:{
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 50,
+    borderBottomColor: '#d7d7d7',
+    borderBottomWidth: 0.5,
+    paddingHorizontal: 10,
+  }
+  
 });
 

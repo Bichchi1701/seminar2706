@@ -9,7 +9,6 @@ export default class ProductItem extends PureComponent {
   }
 
   render() {
-    console.log(this.props.data);
     const {
       data,
       onClick,
@@ -31,8 +30,8 @@ export default class ProductItem extends PureComponent {
             <Text style={styles.productText}> {data.name} </Text>
           </View>
           <View style={styles.productContentWrapper}>
-            <Text style={styles.productContentTitle}>Gia:</Text>
-            <Text style={styles.productText}> {data.price}</Text>
+            <Text style={styles.productContentTitle}>Giá:</Text>
+            <Text style={styles.productText}> {data.price} VNĐ</Text>
           </View>
           <View style={styles.productContentWrapper}>
             <Text style={styles.productContentTitle}>Ngày cập nhật:</Text>

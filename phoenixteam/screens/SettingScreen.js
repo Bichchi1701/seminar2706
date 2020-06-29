@@ -20,6 +20,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { SearchBar, ButtonGroup, Input, Button, Tooltip } from 'react-native-elements';
 import firebase from "firebase";
 import moment from 'moment';
+import { Api } from '../constants/const';
 
 
 export default class SettingScreen extends Component {
@@ -34,39 +35,56 @@ export default class SettingScreen extends Component {
       isAutomatic: true,
     };
   };
-  callFirebase = async () => {
+  // callFirebase = async () => {
 
-    var strs;
-    var _history = [];
+  //   var strs;
+  //   var _history = [];
 
-    var db = firebase.database();
-    await firebase
-      .database()
-      .ref('/shopOwners/')
-      .once('value', function (snapshot) {
-        strs = snapshot.val()[0].settingRules;
-        if (snapshot.val()[0].history !== undefined) {
-          _history = snapshot.val()[0].history;
-        }
+  //   var db = firebase.database();
+  //   await firebase
+  //     .database()
+  //     .ref('/shopOwners/')
+  //     .once('value', function (snapshot) {
+  //       strs = snapshot.val()[0].settingRules;
+  //       if (snapshot.val()[0].history !== undefined) {
+  //         _history = snapshot.val()[0].history;
+  //       }
 
-      })
+  //     })
+  //   this.setState({
+  //     settings: strs,
+  //     history: _history,
+  //     isLoading: false,
+  //   })
+  // }
+  callApi = async () => {
+    const API_URL = `${Api}SettingRule`;
+    const response = await fetch(API_URL);
+    const _setting = await response.json();
+    return _setting.data;
+  }
+
+  onRefresh = async () => {
+    let settings = await this.callApi();
     this.setState({
-      settings: strs,
-      history: _history,
+      settings,
       isLoading: false,
     })
   }
-
-  componentDidMount = async () => {
+  componentWillMount = async () => {
+    // this.setState({
+    //   isLoading: true,
+    // });
+    let settings = await this.callApi();
     this.setState({
-      isLoading: true,
-    });
-    this.callFirebase();
-  };
+      settings,
+      isLoading: false,
+    })
+  }
   onClickMoreOption = () => {
     const { settings } = this.state;
     const newSettingItem = {
-      duration: '30',
+      duration: '7',
       discount: '',
       date: '',
       id: settings.length + 1
@@ -90,18 +108,7 @@ export default class SettingScreen extends Component {
   updateUpdateTime = checkDateDuration => {
     this.setState({ checkDateDuration });
   };
-  onChangeDate = (id, value) => {
-    console.log(value);
-    const { settings } = this.state;
-    const settingItem = settings.find(item => item.id === id);
-    settingItem.date = value;
-    const foundIndex = settings.findIndex(item => item.id === id);
-    settings[foundIndex] = settingItem;
-    const newSettings = [...settings];
-    this.setState({
-      settings: newSettings,
-    });
-  };
+
 
   onCancel = () => {
     this.setState({
@@ -111,7 +118,6 @@ export default class SettingScreen extends Component {
     this.callFirebase();
   }
   onChangeDiscount = (id, value) => {
-    console.log(value);
     const { settings } = this.state;
     const settingItem = settings.find(item => item.id === id);
     settingItem.discount = value;
@@ -122,117 +128,50 @@ export default class SettingScreen extends Component {
       settings: newSettings,
     });
   };
-  onChangeDuration = (id, value) => {
-    console.log(value);
+  onChangeDate = (id, value) => {
     const { settings } = this.state;
     const settingItem = settings.find(item => item.id === id);
-    settingItem.duration = value;
+    settingItem.date = +value;
+    if (settingItem.date < 15) {
+      Alert.alert('Nhap so ngay lon hon 15', alert);
+    }
+    if (settingItem.date >= 15 && settingItem.date < 30) {
+      settingItem.discount = 10;
+    }
+    if (settingItem.date >= 30 && settingItem.date < 60) {
+      settingItem.discount = 15;
+    }
+    if (settingItem.date >= 60) {
+      settingItem.discount = 20;
+    }
     const foundIndex = settings.findIndex(item => item.id === id);
     settings[foundIndex] = settingItem;
     const newSettings = [...settings];
     this.setState({
       settings: newSettings,
     });
+
   };
-  updateHistory = () => {
-    const { history } = this.state;
-    console.log('history', history);
-    var _now = moment().format("DD/MM/YYYY HH:mm:ss");
-    const newHistoryItem = {
-      content: 'Bạn đã cập nhật cài đặt',
-      time: _now,
-      id: history.length + 1,
-      type: 'setting',
-    };
-    const newHistory = [...history, newHistoryItem];
-    this.setState({
-      history: newHistory,
-    })
-    console.log('after change', history);
+
+  onSaveSettingRules = () => {
+    const settingRules = this.state.settings;
+
+    const API_URL = `${Api}SettingRule`;
+    const response = await fetch(API_URL, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      // Cái body này là body request nha
+      body: JSON.stringify({
+        settingRules,
+      })
+    }
+    );
+    const _setting = await response.json();
+    return _setting.data;
   }
-  pushHistoryToFirebase = () => {
-    const { history } = this.state;
-    var i = 0;
-    for (let item of history) {
-      let content = item.content;
-      let time = item.time;
-      let id = item.id;
-      let type = item.type;
-      firebase.database().ref('shopOwners/0/history').child(i).set({
-        content,
-        time,
-        id,
-        type,
-      }).then((data) => {
-        //success callback
-        console.log('data ', data)
-      }).catch((error) => {
-        //error callback
-        console.log('error ', error)
-      });
-      i++
-    }
-  }
-  onSaveSettingRules = async () => {
-    const { settings, isAutomatic } = this.state;
-    const settingRules = settings;
-    var flag = true;
-    var alert = '';
-    var count = 0;
-    for (let item of settingRules) {
-      count = 0;
-      if (item.date === '' || item.duration === '' || item.discount === '' || item.id === '') {
-        flag = false;
-        alert = 'Không được để trống điều kiện đặt giá động!';
-      }
-      // for (let _item of settingRules) {
-      //   if (item.date === _item.date)
-      //     count++;
-      //   console.log('count:', count);
-      // }
-
-      // if (count === 1) {
-      //   flag = false;
-      //   alert = 'Số ngày không bán được không được trùng!';
-      // }
-    }
-    if (flag === true) {
-      var i = 0;
-
-      firebase.database().ref('shopOwners/0/isAutomatic').set(
-        isAutomatic,
-      );
-      firebase.database().ref('shopOwners/0/settingRules').remove();
-      for (let item of settingRules) {
-        let date = parseInt(item.date);
-        let discount = parseFloat(item.discount);
-        let duration = parseInt(item.duration);
-        let id = parseInt(item.id);
-        firebase.database().ref('shopOwners/0/settingRules').child(i).set({
-          date,
-          duration,
-          id,
-          discount
-        }).then((data) => {
-          //success callback
-          console.log('data ', data)
-        }).catch((error) => {
-          //error callback
-          console.log('error ', error)
-        });
-        i++;
-      }
-      await this.updateHistory();
-      this.pushHistoryToFirebase();
-
-      Alert.alert('Đã lưu', 'Cập nhật thành công');
-    }
-    else {
-
-      Alert.alert('Lưu ý', alert);
-    }
-    console.log('CheckingSetting', alert);
-  };
   onChangeAutomatic = (value) => {
     this.setState({
       isAutomatic: value
@@ -244,7 +183,6 @@ export default class SettingScreen extends Component {
   render() {
     const { settings, autoUpdateTime, checkDateDuration, isLoading, history } = this.state;
 
-    console.log('historyItems', history);
     if (isLoading) {
       return (
         <View style={styles.containerLoading}>
@@ -318,7 +256,7 @@ export default class SettingScreen extends Component {
               onPress={() => this.onClickGuide()}
               titleStyle={styles.helpButtonText}
               buttonStyle={styles.buttonGuide}
-             
+
             />
             <View style={styles.addMoreSettingRulesWrapper}>
               <Button
@@ -395,7 +333,7 @@ const styles = StyleSheet.create({
 
   },
   helpButtonText: {
-    color:'#2089DC',
+    color: '#2089DC',
     fontStyle: 'italic'
   },
 

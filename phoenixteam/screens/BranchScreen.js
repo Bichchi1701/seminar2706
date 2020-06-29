@@ -39,31 +39,28 @@ export default class BranchScreen extends Component {
 //   };
   
   callApi = async () => {
-   
-    const API_URL = 'https://localhost:44348/api/v1/Branch';
+    const API_URL =   `${Api}Branch`;
     //const API_URL = 'https://getmessagetestingwebsite.000webhostapp.com/rule.php';
     const response = await fetch(API_URL);
     const _listBranch = await response.json();
-    
+    return _listBranch.data;
+  }
+  onRefresh = async () => {
+    let listBranch = await this.callApi();
     this.setState({
       isLoading: false,
-      listBranch: _listBranch.data,
-     
+      listBranch,
     });
-
   }
-  onRefresh = () => {
+    
+  componentDidMount = async () => {
+   
+    let listBranch = await this.callApi();
     this.setState({
-      listBranch: [],
-      isLoading: true,
-    })
-    this.callApi();
-  }
-  componentDidMount = () => {
-    this.setState({
-      isLoading: true,
+      isLoading: false,
+      listBranch,
     });
-    this.callApi();
+    
 
   };
  
@@ -88,10 +85,11 @@ export default class BranchScreen extends Component {
 
     return (
       <View style={styles.container}>
-      
+        <Text style={styles.announceText}>{this.state.listBranch.length ?? "ko xac ddinhk"}</Text>
         <FlatList data={this.state.listBranch}
           renderItem={({ item }) => {
-            return <BranchItem data={item}  />
+          return <Text style={styles.announceText}>{item.name}</Text>
+            // return <BranchItem data={item}  />
           }}
           keyExtractor={(item, index) => index.toString()}
           onRefresh={this.onRefresh}
