@@ -17,29 +17,25 @@ export default class BranchItem extends PureComponent {
     } = this.props;
     
     return (
-      <Text>Cho bich chi</Text>
-      // <TouchableOpacity style={styles.product} onPress={onClick} >
-      //   <Image style={styles.productImgWrapper}
-      //     source={{ uri: data.images }}
-      //   />
-
-      //   <View style={styles.productContentsWrapper}>
-      //     <View style={styles.productContentWrapper}>
-      //       <Text style={styles.productContentTitle}>Mã:</Text>
-      //       <Text style={styles.productText}> {data.branchId} </Text>
-      //     </View>
-      //     <View style={styles.productContentWrapper}>
-      //       <Text style={styles.productContentTitle}>Tên:</Text>
-      //       <Text style={styles.productText}> {data.name} </Text>
-      //     </View>
-      //     <View style={styles.productContentWrapper}>
-      //       <Text style={styles.productContentTitle}>Gia:</Text>
-      //       <Text style={styles.productText}> {data.address}</Text>
-      //     </View>
+     
+      <TouchableOpacity style={styles.product} onPress={onClick} >
+       <Image style={styles.productImgWrapper}
+       source={{ uri: data.image }}
+       />
+<View style={styles.productContentsWrapper}>
+       
+          <View style={styles.productContentWrapper}>
+            <Text style={styles.productContentTitle}>Tên chi nhánh:</Text>
+             <Text style={styles.productText}> {data.name} </Text>
+           </View>
+           <View style={styles.productContentWrapper}>
+             <Text style={styles.productContentTitle}>Địa chỉ:</Text>
+             <Text style={styles.productText}> {data.address}</Text>
+           </View>
       
 
-      //   </View>
-      // </TouchableOpacity>
+         </View>
+       </TouchableOpacity>
     );
   }
 }

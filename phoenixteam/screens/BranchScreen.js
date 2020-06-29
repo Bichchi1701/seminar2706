@@ -16,6 +16,7 @@ import { SearchBar, ButtonGroup } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
 import ProductItem from '../components/ProductItem';
 import BranchItem from '../components/BranchItem';
+import {Api} from '../constants/const';
 
 
 
@@ -51,18 +52,21 @@ export default class BranchScreen extends Component {
       isLoading: false,
       listBranch,
     });
+    this.callApi();
   }
     
-  componentDidMount = async () => {
-   
+  UNSAFE_componentWillMount = async () => {
+    // this.setState({
+    //   isLoading: true,
+    // });
     let listBranch = await this.callApi();
-    this.setState({
-      isLoading: false,
-      listBranch,
-    });
     
-
-  };
+    this.setState({
+      listBranch,
+     
+      isLoading: false,
+    })
+  }
  
   render() {
 
@@ -85,14 +89,13 @@ export default class BranchScreen extends Component {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.announceText}>{this.state.listBranch.length ?? "ko xac ddinhk"}</Text>
+        {/* <Text style={styles.announceText}>{this.state.listBranch.length ?? "ko xac ddinhk"}</Text> */}
         <FlatList data={this.state.listBranch}
           renderItem={({ item }) => {
-          return <Text style={styles.announceText}>{item.name}</Text>
-            // return <BranchItem data={item}  />
+          return <BranchItem data={item} onClick={() => this.onViewDetail(item.id)} />
           }}
           keyExtractor={(item, index) => index.toString()}
-          onRefresh={this.onRefresh}
+          onRefresh={this.onRefresh}  
           refreshing={false}
         />
 
@@ -103,7 +106,7 @@ export default class BranchScreen extends Component {
 };
 
 BranchScreen.navigationOptions = {
-  title: 'Thống kê doanh thu',
+  title: 'Danh sách chi nhánh',
 };
 
 

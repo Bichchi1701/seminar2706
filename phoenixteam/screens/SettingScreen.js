@@ -35,28 +35,7 @@ export default class SettingScreen extends Component {
       isAutomatic: true,
     };
   };
-  // callFirebase = async () => {
-
-  //   var strs;
-  //   var _history = [];
-
-  //   var db = firebase.database();
-  //   await firebase
-  //     .database()
-  //     .ref('/shopOwners/')
-  //     .once('value', function (snapshot) {
-  //       strs = snapshot.val()[0].settingRules;
-  //       if (snapshot.val()[0].history !== undefined) {
-  //         _history = snapshot.val()[0].history;
-  //       }
-
-  //     })
-  //   this.setState({
-  //     settings: strs,
-  //     history: _history,
-  //     isLoading: false,
-  //   })
-  // }
+  
   callApi = async () => {
     const API_URL = `${Api}SettingRule`;
     const response = await fetch(API_URL);
@@ -65,19 +44,32 @@ export default class SettingScreen extends Component {
   }
 
   onRefresh = async () => {
-    let settings = await this.callApi();
+    this.setState({
+      isLoading: true,
+    })
+
+    let response = await this.callApi();
+    let settings = response.settingRules;
+    let isAutomatic = response.auto;
+
     this.setState({
       settings,
+      isAutomatic,
       isLoading: false,
     })
   }
   componentWillMount = async () => {
-    // this.setState({
-    //   isLoading: true,
-    // });
-    let settings = await this.callApi();
+    this.setState({
+      isLoading: true,
+    });
+
+    let response = await this.callApi();
+    let settings = response.settingRules;
+    let isAutomatic = response.auto;
+  
     this.setState({
       settings,
+      isAutomatic,
       isLoading: false,
     })
   }
@@ -133,7 +125,7 @@ export default class SettingScreen extends Component {
     const settingItem = settings.find(item => item.id === id);
     settingItem.date = +value;
     if (settingItem.date < 15) {
-      Alert.alert('Nhap so ngay lon hon 15', alert);
+      Alert.alert('Nhập số ngày lớn hơn 15', alert);
     }
     if (settingItem.date >= 15 && settingItem.date < 30) {
       settingItem.discount = 10;
@@ -153,24 +145,61 @@ export default class SettingScreen extends Component {
 
   };
 
-  onSaveSettingRules = () => {
-    const settingRules = this.state.settings;
+  onSaveSettingRules = async () => {
+
+    let rules = [];
+
+    this.state.settings.forEach(
+      function myFunction(item) {
+        rules.push(
+          {
+            date: item.date,
+            duration: parseInt(item.duration),
+            discount: parseInt(item.discount),
+          }
+        )
+      }
+    )
+
+    console.log(rules);
+
+    console.log("result", JSON.stringify({
+      settingRules: rules,
+      auto: true,
+    }));
 
     const API_URL = `${Api}SettingRule`;
+    // const response = await fetch(API_URL, {
+    //   method: 'PUT',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     ContentType: 'application/json'
+    //   },
+    //   // Cái body này là body request nha
+    //   body: JSON.stringify({
+    //     settingRules: rules,
+    //     auto: true,
+    //   })
+    // });
+
     const response = await fetch(API_URL, {
       method: 'PUT',
       headers: {
-        Accept: 'application/json',
+        'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      // Cái body này là body request nha
       body: JSON.stringify({
-        settingRules,
+        settingRules: rules,
+        auto: true,
       })
+    });
+
+    console.log(response);
+    if (response.status !== 200) {
+      Alert.alert('Lưu thất bại')
+    } else {
+      Alert.alert('Lưu thành công.')
     }
-    );
-    const _setting = await response.json();
-    return _setting.data;
   }
   onChangeAutomatic = (value) => {
     this.setState({

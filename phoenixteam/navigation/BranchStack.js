@@ -11,7 +11,7 @@ const config = Platform.select({
 });
 const BranchStack = createStackNavigator(
   {
-    History: BranchScreen,
+    Branch: BranchScreen,
    
   },
   {

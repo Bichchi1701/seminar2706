@@ -16,92 +16,91 @@ import {
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { SearchBar, ButtonGroup, Input, Button, } from 'react-native-elements';
-import moment from 'moment';
-import firebase from "firebase";
+import { Api } from '../constants/const';
+//?
+const TYPE = {
+  d: 0,
+  m: 1,
+  y: 2,
+};
 
 export default class VariantDetailScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      flag: true,
-      variantItem: {
+      discountItem: {
         productId: '',
-        aft_price: '',
+        discountId: '',
+        status: '',
         price: '',
         percent: '',
         dateStart: '',
         dateEnd: '',
       },
-      images: [],
     };
   }
+
   UNSAFE_componentWillMount = () => {
     const { data } = this.props.navigation.state.params;
     this.setState({
       variantItem: {
+        discountId: data.discountId,
         productId: data.productId,
         percent: data.percent,
         price: data.price,
         dateStart: data.date,
         dateEnd: data.dateEnd,
-        aft_price: data.aft_price,
+        status: data.status,
       },
-      images: data.images,
     })
   }
-  onSaveVariant = async (value) => {
-    const { variantItem } = this.state;
-    var data = {
-      id: variantItem.id,
-      price: value
-    }
-    console.log('This is data Iam posting to you:', data);
-    await fetch('https://getmessagetestingwebsite.000webhostapp.com/schedule.php',
-      {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ variant: data }),
-      }).then((response) => response.json())
-      .then((responseJson) => {
-        console.log(responseJson);
+  // onSaveVariant = async (value) => {
+  //   const { variantItem } = this.state;
+  //   var data = {
+  //     id: variantItem.id,
+  //     price: value
+  //   }
+  //   console.log('This is data Iam posting to you:', data);
+  //   await fetch('https://getmessagetestingwebsite.000webhostapp.com/schedule.php',
+  //     {
+  //       method: 'POST',
+  //       headers: {
+  //         'Accept': 'application/json',
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ variant: data }),
+  //     }).then((response) => response.json())
+  //     .then((responseJson) => {
+  //       console.log(responseJson);
 
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     });
+
+  onSaveVariant = async () => {
+    let data = { ...this.state.variantItem, };
+    data.percent = +data.percent / 100;
+    data.aft_price = data.price - data.price * data.percent;
+    const API_URL = `${Api}Discount`;
+    console.log(data)
+
+
+    const response = await fetch(API_URL, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
       })
-      .catch((error) => {
-        console.error(error);
-      });
-   
-    var _now = moment().format("DD/MM/YYYY HH:mm:ss");
-    const newHistoryItem = {
-      content: 'Bạn đã cập nhật sản phẩm ' + discountItem.id,
-      time: _now,
-      id: _history.length + 1,
-      type: 'product',
-    };
-    const newHistory = [..._history, newHistoryItem];
-    var i = 0;
-    for (let item of newHistory) {
-      let content = item.content;
-      let time = item.time;
-      let id = item.id;
-      let type = item.type;
-      firebase.database().ref('shopOwners/0/history').child(i).set({
-        content,
-        time,
-        id,
-        type,
-      }).then((data) => {
-        //success callback
-      }).catch((error) => {
-        //error callback
-      });
-      i++
-    };
-    Alert.alert('Đã lưu', 'Cập nhật thành công');
-  };
-
+    });
+    if (response.status === 200) {
+      Alert.alert('Lưu thành công');
+    } else {
+      Alert.alert('Lưu thất bại')
+    }
+  }
   onCancel = () => {
 
   };
@@ -116,39 +115,45 @@ export default class VariantDetailScreen extends Component {
       })
     }
   }
-  onSetDatestart = (value) => {
-   
+  onSetDatestart = (value, type) => {
+    let tmp = this.state.dateStart.split("/");
+    tmp[TYPE[type]] = value;
+    this.setState({
+      variantItem: {
+        ...this.state.variantItem,
+        dateStart: tmp.join("/"),
+      }
+    })
   }
-  onSetDateend = (value) => {
-   
-
+  onSetDateend = (value, type) => {
+    let tmp = this.state.dateEnd.split("/");
+    tmp[TYPE[type]] = value;
+    this.setState({
+      variantItem: {
+        ...this.state.variantItem,
+        dateEnd: tmp.join("/")
+      }
+    })
   }
   getValueDate = (date, type) => {
-    let tmp = date.split("/");
-    const TYPE = {
-
+    if (date != null) {
+      let tmp = date.split("/");
+      return tmp[TYPE[type]];
     }
+    else
+      return 0;
   }
+
   render() {
-    var _percent=0;
+    var _percent = 0;
     if (this.state.variantItem.percent != undefined) {
       _percent = this.state.variantItem.percent.toString();
     }
-    var _aftPrice=0;
-    var  _aftprice = parseInt(this.state.variantItem.price) - parseInt(this.state.variantItem.price) * parseInt(_percent) / 100;
+
+    var _aftprice = parseInt(this.state.variantItem.price) - parseInt(this.state.variantItem.price) * parseInt(_percent) / 100;
     return (
       <ScrollView>
         <View style={styles.content}>
-        <View style={styles.settingButton}>
-            <Text style={styles.settingText}>Cập nhật trạng thái </Text>
-            <Switch
-              size={50}
-              onValueChange={this.onChangeAutomatic}
-              value={this.state.isAutomatic}
-
-            />
-
-          </View>
 
           <View style={styles.productContentsWrapper}>
             <Text style={styles.productContentTitle}>SKU: </Text>
@@ -161,46 +166,57 @@ export default class VariantDetailScreen extends Component {
           </View>
           <View style={styles.productContentsWrapper}>
             <Text style={styles.productContentTitle}>Mức chiết khấu: </Text>
-            <TextInput maxLength={3} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.percent} onChangeText={(value) => this.onSetDiscount(value)} />
+            <TextInput maxLength={3} style={styles.inputDate} keyboardType='numeric' value={this.state.percent} onChangeText={(value) => this.onSetDiscount(value)} />
             <Text style={styles.productContentTitle}> %</Text>
           </View>
-          {/* <View style={styles.productContentsWrapper}>
-            <Text style={styles.productContentTitle}>Giá sau chiết khấu: </Text>
-            <Text style={styles.productContentTitle}>{_afterPrice} VNĐ</Text>
-          </View> */}
-           <View style={styles.productContentsWrapper}>
+
+          <View style={styles.productContentsWrapper}>
             <Text style={styles.productContentTitle}>Giá sản phẩm sau khi chiết khấu:</Text>
-            <Text style={styles.productContentText}> { _aftprice} VNĐ </Text>
+            <Text style={styles.productContentText}> {_aftprice} VNĐ </Text>
           </View>
+
+          {/* 
           <View style={styles.productContentsWrapper}>
             <Text style={styles.productContentTitle}>Ngày bắt đầu: </Text>
-            <TextInput maxLength={2} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "d")} />
-            <Text> ngày</Text>
-            <TextInput maxLength={2} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "m")} />
-            <Text> tháng</Text>
-            <TextInput maxLength={4} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "y")} />
-            <Text>     năm</Text>
-            {/* <DatePicker
-              style={{ width: 200 }}
-              date={this.state.date}
-              mode="date"
-              placeholder="select date"
-              format="DD-MM-YYYY"
-              // minDate="2016-05-01"
-              // maxDate="2016-06-01"
-              confirmBtnText="Confirm"
-              cancelBtnText="Cancel"
-              customStyles={styles.datePickerCustom}
-              onDateChange={(date) => { this.setState({ date: date }) }} /> */}
-          </View>
-          <View style={styles.productContentsWrapper}>
-            <Text style={styles.productContentTitle}>Ngay kết thúc: </Text>
-            <TextInput maxLength={2} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "d")} />
+            <TextInput maxLength={2} containerStyle={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateStart)} onChangeText={(value) => this.onSetDatestart(value, "d")} />
             <Text>ngày</Text>
-            <TextInput maxLength={2} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "m")} />
+            <TextInput maxLength={2} containerStyle={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateStart)} onChangeText={(value) => this.onSetDatestart(value, "m")} />
             <Text>tháng</Text>
-            <TextInput maxLength={4} containerStyle={styles.inputPercentDiscount} keyboardType='numeric' value={this.state.dateEnd} onChangeText={(value) => this.onSetDateend(value, "y")} />
+            <TextInput maxLength={4} containerStyle={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateStart)} onChangeText={(value) => this.onSetDatestart(value, "y")} />
             <Text>năm</Text>
+
+          </View> */}
+
+          <View style={styles.productContentsWrapper}>
+            <Text style={styles.productContentTitle}>Ngày bắt đầu: </Text>
+            <TextInput maxLength={2} style={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateEnd, "d")} />
+            <Text>ngày</Text>
+            <TextInput maxLength={2} style={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateEnd, "d")} />
+            <Text>tháng</Text>
+            <TextInput maxLength={4} style={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateEnd, "d")} />
+            <Text>năm</Text>
+
+          </View>
+
+
+          {/* <View style={styles.productContentsWrapper}>
+            <Text style={styles.productContentTitle}>Ngày kết thúc: </Text>
+            <TextInput maxLength={2} containerStyle={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateEnd, "d")} onChangeText={(value) => this.onSetDateend(value, "d")} />
+            <Text> ngày</Text>
+            <TextInput maxLength={2} containerStyle={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateEnd, "m")} onChangeText={(value) => this.onSetDateend(value, "m")} />
+            <Text> tháng</Text>
+            <TextInput maxLength={4} containerStyle={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateEnd, "y")} onChangeText={(value) => this.onSetDateend(value, "y")} />
+            <Text>  năm</Text>
+          </View> */}
+
+          <View style={styles.productContentsWrapper}>
+            <Text style={styles.productContentTitle}>Ngày kết thúc: </Text>
+            <TextInput maxLength={2} style={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateEnd, "d")} />
+            <Text> ngày</Text>
+            <TextInput maxLength={2} style={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateEnd, "d")} />
+            <Text> tháng</Text>
+            <TextInput maxLength={4} style={styles.inputDate} keyboardType='numeric' value={this.getValueDate(this.state.dateEnd, "d")} />
+            <Text>  năm</Text>
           </View>
 
           <View style={styles.settingConfirmButtonWrapper}>
@@ -215,7 +231,7 @@ export default class VariantDetailScreen extends Component {
                   />
                 }
                 title=" Lưu"
-                onPress={() => this.onSaveVariant(_aftPrice)}
+                onPress={() => this.onSaveVariant()}
                 buttonStyle={styles.buttonSave}
               />
             </View>
@@ -244,6 +260,12 @@ VariantDetailScreen.navigationOptions = {
 };
 
 const styles = StyleSheet.create({
+  inputDate: {
+    height: 20,
+    width: 50,
+    borderColor: 'gray',
+    borderWidth: 1
+  },
   buttonCancel: {
     backgroundColor: '#e60000',
     width: 150,
@@ -289,7 +311,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flexDirection: 'column',
-    
+
   },
   productContentTitle: {
     color: 'black',
@@ -307,7 +329,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 14,
   },
-  settingButton:{
+  settingButton: {
     flexDirection: 'row',
     backgroundColor: '#fff',
     justifyContent: 'space-between',
@@ -317,6 +339,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     paddingHorizontal: 10,
   }
-  
+
 });
 

@@ -8,7 +8,7 @@ export default class LoginScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userName: 'phoenix05.myharavan.com',
+            userName: 'seminar.admin',
             pass: 'cadeptrai'
         };
     }

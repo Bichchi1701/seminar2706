@@ -44,6 +44,9 @@ export default class ItemDetailScreen extends Component {
     });
     this.callApi();
   };
+  onViewDetail = item => {
+    this.props.navigation.navigate('DiscountItem', { data: this.state.item});
+  };
   // onViewDetail = id => {
 
   //   const { navigation } = this.props;
@@ -107,7 +110,7 @@ export default class ItemDetailScreen extends Component {
         title="Thêm giảm giá"
         
         onPress={() => this.props.navigation.navigate('VariantDetail', {data: this.state.data})}
-        buttonStyle={styles.buttonChange}
+   
       />
       </View>
           
@@ -116,7 +119,7 @@ export default class ItemDetailScreen extends Component {
         <FlatList
           data={this.state.data.saleOffs}
           renderItem={({ item }) => {
-            return <ProductVariants saleOffs={item} onClick={() => this.onViewDetail(item.id)} />
+            return <ProductVariants saleOffs={item} onClick={() => this.onViewDetail(item)} />
           }}
           keyExtractor={(item, index) => index.toString()} />
       </ScrollView>
@@ -182,15 +185,5 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '400',
   },
-  buttonChange:{
-    borderTopWidth: 0.5,
-    borderColor: '#d7d7d7',
-    flexDirection: 'row',
-    backgroundColor: '#2EFEF7',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: 100,
-    height:60,
-    paddingHorizontal: 10,
-  }
+  
 });

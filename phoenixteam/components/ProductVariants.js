@@ -18,12 +18,7 @@ export default class ProductVariants extends Component {
             onClick,
         } = this.props;
         
-        // var _scr = img[0].src;
-        // if(variantImg!==undefined)
-        // {
-        //     _scr = variantImg.src;
-        // }
-        // const imgStyle = discount === 0 ? styles.productImgWrapper : styles.productImgActiveWrapper;
+       
         return (
             <TouchableOpacity style={styles.product} onPress={onClick} >
                 {/* <Image style={imgStyle}
@@ -43,6 +38,7 @@ export default class ProductVariants extends Component {
                     <View style={styles.productContentWrapper}>
                         <Text style={styles.productContentTitle}>Mức chiết khấu:</Text>
                         <Text style={styles.productText}> {percentDiscount}  </Text>
+                        <Text style={styles.productContentTitle}>%</Text>
                     </View>
                    
                     <View style={styles.productContentWrapper}>
